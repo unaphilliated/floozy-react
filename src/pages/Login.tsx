@@ -1,6 +1,10 @@
 import React from 'react';
+import '../styles/Login.scss';
 import TextField from '@mui/material/TextField';
+import { Link } from 'react-router-dom';
 import Axios from 'axios';
+
+// TODO: Refactor to shared template for Register/Login? Very similar code.
 
 class Login extends React.Component {
   constructor(props: any) {
@@ -39,27 +43,32 @@ class Login extends React.Component {
   
     render() {
       return (
-      <div>
-        <h1>Login Page!!!!!</h1>
-        <form onSubmit={this.handleSubmit}>
-          <TextField
-            required
-            id="email"
-            label="Email"
-            variant="outlined"
-            onChange={this.handleChange}
-          />
-          <TextField
-            required
-            id="password"
-            label="Password"
-            type="password"
-            variant="outlined"
-            onChange={this.handleChange}
-          />
-          <input type="submit" value="Login" />
-        </form>
-      </div>
+        <div className="form-page">
+          <div className="form-card">
+            <h1 className="form-title">Login Page!!!!!</h1>
+            <form className="form" onSubmit={this.handleSubmit}>
+              <TextField className="form-field"
+                required
+                id="email"
+                label="Email"
+                variant="outlined"
+                onChange={this.handleChange}
+              />
+              <TextField className="form-field"
+                required
+                id="password"
+                label="Password"
+                type="password"
+                variant="outlined"
+                onChange={this.handleChange}
+              />
+              <div className="form-actions">
+                <input type="submit" value="Login" />
+                <p className="form-helper-text">Don't have an account? <Link to="/register">Register</Link>.</p>
+              </div>
+            </form>
+          </div>
+        </div>
       );
     }
 }
