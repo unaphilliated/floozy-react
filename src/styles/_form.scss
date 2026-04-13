@@ -1,0 +1,32 @@
+@use "_variables" as *;
+
+.form-page {
+  display: flex;
+  justify-content: center;
+  padding: 2rem 1rem;
+}
+
+.form-card {
+  width: 100%;
+  max-width: $form-max-width;
+}
+
+.form-title {
+  margin-bottom: 1.25rem;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: $form-gap;
+}
+
+.form-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.form-helper-text {
+  font-size: 0.95rem;
+}

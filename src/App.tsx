@@ -9,20 +9,20 @@ import './App.css';
 
 const App = () => {
   return (
-	<div className="content">
-	  <Header />
-	  <BrowserRouter>
-		<Routes>
-		  <Route path="/" element={<Home />} />
-			<Route path="/register" element={<Register />} />
-			<Route path="/login" element={<Login />} />
+		<div className="content">
+			<Header />
+			<BrowserRouter>
+				<Routes>
+					<Route path="/" element={<Home />} />
+					<Route path="/register" element={<Register />} />
+					<Route path="/login" element={<Login />} />
 
-			<Route element={<AuthShield />}>
-			  <Route path="/dashboard" element={<Dashboard />} />
-			</Route>
-		</Routes>
-	  </BrowserRouter>
-	</div>
+					<Route element={<AuthShield />}>
+						<Route path="/dashboard" element={<Dashboard />} />
+					</Route>
+				</Routes>
+			</BrowserRouter>
+		</div>
   );
 };
 

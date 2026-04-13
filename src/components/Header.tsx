@@ -1,5 +1,4 @@
-import "./Header.css";
-import icon from "./phaethon.svg";
+import icon from "../assets/icons/phaethon.svg";
 import * as React from 'react';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
