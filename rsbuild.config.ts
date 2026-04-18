@@ -6,6 +6,10 @@ import { pluginSass } from '@rsbuild/plugin-sass';
 export default defineConfig({
   plugins: [
     pluginReact(),
-    pluginSass()
+    pluginSass({
+      sassLoaderOptions: {
+        implementation: require.resolve('sass'),
+      },
+    }),
   ],
 });
