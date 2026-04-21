@@ -23,7 +23,7 @@ const theme = createTheme({
 
           // hover
           "&:hover .MuiOutlinedInput-notchedOutline": {
-            borderColor: "#ffffff",
+            borderColor: "#dfdfdf",
           },
 
           // focused
@@ -66,6 +66,18 @@ const theme = createTheme({
           "&::placeholder": {
             color: "#aaa",
             opacity: 1,
+          },
+        },
+      },
+    },
+
+    MuiIconButton: {
+      styleOverrides: {
+        root: {
+          color: "#ffffff", // icon color
+
+          "&:hover": {
+            color: "#dfdfdf",
           },
         },
       },

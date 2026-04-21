@@ -7,6 +7,7 @@ import AuthShield from "./components/AuthShield";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
 import Logout from "./pages/Logout";
+import ResetPassword from "./pages/ResetPassword";
 import Account from "./pages/Account";
 import Dashboard from "./pages/Dashboard";
 import './App.css';
@@ -23,6 +24,7 @@ const App = () => {
 					<Route path="/register" element={<Register />} />
 					<Route path="/login" element={<Login />} />
 					<Route path="/logout" element={<Logout />} />
+					<Route path="/reset-password" element={<ResetPassword />} />
 					<Route element={<AuthShield />}>
 						<Route path="/account" element={<Account />} />
 						<Route path="/dashboard" element={<Dashboard />} />
