@@ -6,40 +6,42 @@ import InputAdornment from '@mui/material/InputAdornment';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { Link, Navigate } from 'react-router-dom';
-import Axios from 'axios';
+import { AuthContext } from '../store/AuthContext';
 
 // TODO: Refactor to shared template for Register/Login? Very similar code.
 
 class Register extends React.Component {
   constructor(props: any) {
-      super(props);
-      this.state = { 
-        email: '',
-        password: '',
-        confirmpassword: '',
-        showPassword: false,
-        emailValid: true,
-        emailError: '',
-        passwordValid: true,
-        passwordMatch: false,
-        passwordError: '',
-        isSubmitting: false,
-        submitResponse: null,
-      };
+    super(props);
+    this.state = { 
+      email: '',
+      password: '',
+      confirmpassword: '',
+      showPassword: false,
+      emailValid: true,
+      emailError: '',
+      passwordValid: true,
+      passwordMatch: false,
+      passwordError: '',
+      attemptedSubmit: false,
+    };
+
+    this.handleInputChange = this.handleInputChange.bind(this);
+    this.validatePassword = this.validatePassword.bind(this);
+    this.validateEmail = this.validateEmail.bind(this);
+    this.handleClickShowPassword = this.handleClickShowPassword.bind(this);
+    this.preventMouseEvent = this.preventMouseEvent.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+
+    // Minimum eight characters, at least one letter and one number:
+    this.passwordStrengthRegex = new RegExp(/^(?=.*[A-Z])(?=.*\d)[A-Z\d@$!%*#?&]{8,}$/, "i");
+
+    // 99% of emails fall under this - if it fails they'll figure it out
+    this.emailRegex = new RegExp(/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/, "i");
+  }
   
-      this.handleInputChange = this.handleInputChange.bind(this);
-      this.validatePassword = this.validatePassword.bind(this);
-      this.validateEmail = this.validateEmail.bind(this);
-      this.handleClickShowPassword = this.handleClickShowPassword.bind(this);
-      this.preventMouseEvent = this.preventMouseEvent.bind(this);
-      this.handleSubmit = this.handleSubmit.bind(this);
-
-      // Minimum eight characters, at least one letter and one number:
-      this.passwordStrengthRegex = new RegExp(/^(?=.*[A-Z])(?=.*\d)[A-Z\d@$!%*#?&]{8,}$/, "i");
-
-      // 99% of emails fall under this - if it fails they'll figure it out
-      this.emailRegex = new RegExp(/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/, "i");
-    }
+  static contextType = AuthContext;
+  declare context: React.ContextType<typeof AuthContext>;
   
   handleInputChange(event: React.ChangeEvent<HTMLInputElement>, validator?: () => void) {
     this.setState({ [event.target.id]: event.target.value }, () => {
@@ -84,31 +86,16 @@ class Register extends React.Component {
     event.preventDefault();
   };
 
-  handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
+  async handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
-
-    this.setState({ isSubmitting: true });
-    console.log("Submitting form with state:", this.state);
-
-    // TODO: Put api base URI into environment variable
-    Axios.postForm('http://localhost:8080/register', { email: this.state.email, password: this.state.password })
-      .then(response => {
-        localStorage.setItem('token', response.data.token);
-
-        // Navigation logic in render()
-        this.setState({ isSubmitting: false, submitResponse: response.status });
-      })
-      .catch(error => {
-        console.error('Register error:', error);
-        this.setState({ isSubmitting: false, submitResponse: error.response ? error.response.status : -1 });
-      });
-
-    console.log("Submitting form with state:", this.state);
-    console.log("Form submitted!");
+    await this.context.register(this.state.email, this.state.password)
+    this.setState({ attemptedSubmit: true });
   }
 
   render() {
-    if (this.state.submitResponse === 200) {
+    const authContext = this.context;
+    
+    if (authContext.isAuthenticated) {
       return <Navigate to="/dashboard" />;
     }
 
@@ -184,8 +171,8 @@ class Register extends React.Component {
               }}
             />
             <div className="form-actions">
-              <input type="submit" value="Register" disabled={this.state.isSubmitting} />
-              {this.state.submitResponse && this.state.submitResponse !== 200 ? <h2 className="form-error-text">Registration failed<br />Please check your details and try again</h2> : null}
+              <input type="submit" value="Register" disabled={authContext?.isLoading || this.state.emailError || this.state.passwordError || this.state.confirmPasswordError} />
+              {this.state.attemptedSubmit && !this.context.isAuthenticated ? <h2 className="form-error-text">Registration failed<br />Please check your details and try again</h2> : null}
               <h2 className="form-helper-text">Already have an account? <Link to="/login">Login</Link></h2>
             </div>
           </form>

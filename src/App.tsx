@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router';
+import AuthProvider from './providers/AuthProvider';
 import Header from "./components/Header";
 import Home from "./pages/Home";
 import Pricing from "./pages/Pricing";
@@ -15,22 +16,24 @@ import './App.css';
 const App = () => {
   return (
 		<div className="content">
-			<BrowserRouter>
-				<Header />
-				<Routes>
-					<Route path="/" element={<Home />} />
-					<Route path="/pricing" element={<Pricing />} />
-					<Route path="/faq" element={<FAQ />} />
-					<Route path="/register" element={<Register />} />
-					<Route path="/login" element={<Login />} />
-					<Route path="/logout" element={<Logout />} />
-					<Route path="/reset-password" element={<ResetPassword />} />
-					<Route element={<AuthShield />}>
-						<Route path="/account" element={<Account />} />
-						<Route path="/dashboard" element={<Dashboard />} />
-					</Route>
-				</Routes>
-			</BrowserRouter>
+			<AuthProvider>
+				<BrowserRouter>
+					<Header />
+					<Routes>
+						<Route path="/" element={<Home />} />
+						<Route path="/pricing" element={<Pricing />} />
+						<Route path="/faq" element={<FAQ />} />
+						<Route path="/register" element={<Register />} />
+						<Route path="/login" element={<Login />} />
+						<Route path="/logout" element={<Logout />} />
+						<Route path="/reset-password" element={<ResetPassword />} />
+						<Route element={<AuthShield />}>
+							<Route path="/account" element={<Account />} />
+							<Route path="/dashboard" element={<Dashboard />} />
+						</Route>
+					</Routes>
+				</BrowserRouter>
+			</AuthProvider>
 		</div>
   );
 };
