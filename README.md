@@ -43,8 +43,21 @@ To learn more about Rsbuild, check out the following resources:
   * Images, fonts, etc.
 * Components
   * Reusable UI components
+  * Ex. `Header` shared between all pages for navigation
 * Pages
   * Page-level components built from unique or reusable sub-components
+* Providers
+  * Components that provide context objects which are shared between pages
+  * Ex. `AuthProvider` -> `AuthContext` for managing/reading the user state
+* Services
+  * Function-sets that separate things like API calls from UI layer
+  * Ex. `authService` for managing user state with backend API calls
+* Skeletons
+  * Skeleton style loading templates for pages with dynamic content that requires loading
+  * Ex. `Account` page renders `AccountSkeleton` while authenticating
+* Store
+  * Context objects containing shared state to be injected by providers
+  * Ex. `AuthContext` is injected by `AuthProvider` and contains the user state
 * Styles
   * Reusable style variables
   * Style templates
@@ -64,3 +77,12 @@ For MUI components, use `theme.ts` for global styling. This is applied in `index
 For traditional styling, use SCSS. Shared variables can be defined in `_variables.scss`. Shared format templates can be defined as seen in `_form.scss`, used in ex. `Login.scss` and `Register.scss`.
 
 TODO: Add some mixin examples
+
+### Skeletons
+Long loading or dynamic pages/components should make use of Skeletons with MUI. For protected routes, the `AuthShield` can provide a completely separate skeleton page while waiting to authenticate. For unprotected routes, inline skeletons will suffice.
+
+## Authentication strategy
+
+Passwords are encrypted over the wire with HTTPS when logging in and registering.
+
+Session is managed by the backend with HttpOnly cookies. Any Axios calls that require authentication should be sent with the `withCredentials: true` flag. This will prevent XSS attacks.
