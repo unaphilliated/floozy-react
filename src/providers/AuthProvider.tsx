@@ -13,6 +13,9 @@ class AuthProvider extends React.Component<{ children: React.ReactNode }> {
 
     this.refreshSession = this.refreshSession.bind(this);
     this.register = this.register.bind(this);
+    this.forgotPassword = this.forgotPassword.bind(this);
+    this.validateResetCode = this.validateResetCode.bind(this);
+    this.resetPassword = this.resetPassword.bind(this);
     this.login = this.login.bind(this);
     this.logout = this.logout.bind(this);
   }
@@ -37,6 +40,33 @@ class AuthProvider extends React.Component<{ children: React.ReactNode }> {
       user: accountInfo,
       isLoading: false
     });
+  }
+
+  async forgotPassword(email: string) {
+    this.setState({ isLoading: true });
+
+    const success = await authApi.forgotPassword(email);
+
+    this.setState({ isLoading: false });
+    return success;
+  }
+
+  async validateResetCode(code: string) {
+    this.setState({ isLoading: true });
+
+    const success = await authApi.validateResetCode(code);
+
+    this.setState({ isLoading: false });
+    return success;
+  }
+
+  async resetPassword(code: string, newPassword: string) {
+    this.setState({ isLoading: true });
+
+    const success = await authApi.resetPassword(code, newPassword);
+
+    this.setState({ isLoading: false });
+    return success;
   }
 
   async login(email: string, password: string) {
@@ -78,6 +108,9 @@ class AuthProvider extends React.Component<{ children: React.ReactNode }> {
       logout: this.logout,
       refreshSession: this.refreshSession,
       register: this.register,
+      forgotPassword: this.forgotPassword,
+      validateResetCode: this.validateResetCode,
+      resetPassword: this.resetPassword,
     };
 
     return <AuthContext value={value}>{this.props.children}</AuthContext>;

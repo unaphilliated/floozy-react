@@ -6,53 +6,51 @@ import InputAdornment from '@mui/material/InputAdornment';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { Link, Navigate } from 'react-router-dom';
-import Axios from 'axios';
+import { AuthContext } from '../store/AuthContext';
 
 class ResetPasswordEmailStep extends React.Component {
   constructor(props: any) {
     super(props);
     this.state = { 
       email: '',
-      isSubmitting: false,
-      submitResponse: null,
+      attemptedSubmit: false,
+      submitSuccess: false,
     };
 
     this.handleInputChange = this.handleInputChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
   
+  static contextType = AuthContext;
+  declare context: React.ContextType<typeof AuthContext>;
+
+  componentDidMount() {
+    if (this.props.params?.code) {
+      // If we have a code param, skip straight to the code confirmation step
+      this.props.gotoStep("codeStep");
+    }
+  }
+  
   handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
     this.setState({ [event.target.id]: event.target.value });
   }
 
-  handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
+  async handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    this.setState({ isSubmitting: true });
-
-    console.log("Placeholder submit:", this.state);
-    new Promise((resolve) => setTimeout(resolve, 1000))
-      .then(() => {
-        this.setState({ isSubmitting: false, submitResponse: 200 });
-        this.props.nextStep();
-      });
-
-    // TODO: Put api base URI into environment variable
-    // Axios.postForm('http://localhost:8080/reset-password', { email: this.state.email })
-    //   .then(response => {
-    //     localStorage.setItem('token', response.data.token);
-
-    //     // Navigation logic in render()
-    //     this.setState({ isSubmitting: false, submitResponse: response.status });
-    //     this.props.nextStep();
-    //   })
-    //   .catch(error => {
-    //     console.error('Reset password error:', error);
-    //     this.setState({ isSubmitting: false, submitResponse: error.response ? error.response.status : -1 });
-    //   });
+    const success = await this.context.resetPassword(this.state.email);
+    this.setState({
+      attemptedSubmit: true,
+      submitSuccess: success
+    });
+    if (success) {
+      this.props.gotoStep("codeStep");
+    }
   }
 
   render() {
+    const authContext = this.context;
+
     return (
       <div className="form-page">
         <div className="form-card">
@@ -66,8 +64,8 @@ class ResetPasswordEmailStep extends React.Component {
               onChange={this.handleInputChange}
             />
             <div className="form-actions">
-              <input type="submit" value="Reset Password" disabled={this.state.isSubmitting} />
-              {this.state.submitResponse && this.state.submitResponse !== 200 ? <h2 className="form-error-text">Reset password failed<br />Please check your email and try again</h2> : null}
+              <input type="submit" value="Reset Password" disabled={authContext.isLoading} />
+              {this.state.attemptedSubmit && !this.state.submitSuccess ? <h2 className="form-error-text">Reset password failed<br />Please check your email and try again</h2> : null}
               <h2 className="form-helper-text">Don't have an account? <Link to="/register">Register</Link></h2>
             </div>
           </form>
@@ -83,49 +81,55 @@ class ResetPasswordCodeStep extends React.Component {
     super(props);
     this.state = {
       code: '',
+      attemptedSubmit: false,
+      submitSuccess: false,
     };
 
     this.handleInputChange = this.handleInputChange.bind(this);
+    this.formatCodeForDisplay = this.formatCodeForDisplay.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
   
+  static contextType = AuthContext;
+  declare context: React.ContextType<typeof AuthContext>;
+
+  componentDidMount() {
+    this.setState({ code: this.formatCodeForDisplay(this.props.params?.code ?? '') });
+  }
+  
   handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
-    this.setState({ [event.target.id]: event.target.value });
+    const value = event.target.value;
+    const formattedValue = this.formatCodeForDisplay(value);
+    this.setState({ [event.target.id]: formattedValue });
   }
 
-  handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
+  formatCodeForDisplay(code: string) {
+    // TODO: Use an input library? Complicated: https://mui.com/material-ui/react-text-field/#integration-with-3rd-party-input-libraries
+    // Alphanumeric only, 6 characters max, uppercase, auto-format with dashes -> XXX-XXX
+    return code.replace(/[^a-z0-9]+/gi, "").slice(0, 6).toUpperCase().match(/.{1,3}/g)?.join("-") ?? code;
+  }
+
+  async handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    this.setState({ isSubmitting: true });
-
-    console.log("Placeholder submit:", this.state);
-    new Promise((resolve) => setTimeout(resolve, 1000))
-      .then(() => {
-        this.setState({ isSubmitting: false, submitResponse: 200 });
-        this.props.nextStep();
-      });
-
-    // TODO: Put api base URI into environment variable
-    // Axios.postForm('http://localhost:8080/reset-password-code', { code: this.state.code })
-    //   .then(response => {
-    //     localStorage.setItem('token', response.data.token);
-
-    //     // Navigation logic in render()
-    //     this.setState({ isSubmitting: false, submitResponse: response.status });
-    //     this.props.nextStep();
-    //   })
-    //   .catch(error => {
-    //     console.error('Reset password code error:', error);
-    //     this.setState({ isSubmitting: false, submitResponse: error.response ? error.response.status : -1 });
-    //   });
+    const success = await this.context.validateResetCode(this.state.code);
+    this.setState({
+      attemptedSubmit: true,
+      submitSuccess: success
+    });
+    if (success) {
+      this.props.gotoStep("newPasswordStep");
+    }
   }
 
   render() {
+    const authContext = this.context;
+
     return (
       <div className="form-page">
         <div className="form-card">
           <h1 className="form-title">Reset Password</h1>
-          <form className="form" onSubmit={this.handleSubmit}>
+          <form className="form" onSubmit={this.handleSubmit} autoComplete="off">
             <p className="form-helper-text">A confirmation code has been sent to your email.</p>
             <TextField
               required
@@ -133,11 +137,12 @@ class ResetPasswordCodeStep extends React.Component {
               label="Confirmation Code"
               placeholder="XXX-XXX"
               variant="outlined"
+              value={this.state.code}
               onChange={this.handleInputChange}
             />
             <div className="form-actions">
-              <input type="submit" value="Confirm" disabled={this.state.isSubmitting} />
-              {this.state.submitResponse && this.state.submitResponse !== 200 ? <h2 className="form-error-text">Confirmation failed<br />Please check the code and try again</h2> : null}
+              <input type="submit" value="Confirm" disabled={authContext.isLoading} />
+              {this.state.attemptedSubmit && !this.state.submitSuccess ? <h2 className="form-error-text">Confirmation failed<br />Please check the code and try again</h2> : null}
             </div>
           </form>
         </div>
@@ -153,9 +158,12 @@ class ResetPasswordNewPasswordStep extends React.Component {
     this.state = {
       newPassword: '',
       confirmpassword: '',
+      showPassword: false,
       passwordValid: true,
       passwordMatch: false,
       passwordError: '',
+      attemptedSubmit: false,
+      submitSuccess: false,
     };
 
     this.handleInputChange = this.handleInputChange.bind(this);
@@ -170,6 +178,9 @@ class ResetPasswordNewPasswordStep extends React.Component {
     // 99% of emails fall under this - if it fails they'll figure it out
     this.emailRegex = new RegExp(/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/, "i");
   }
+  
+  static contextType = AuthContext;
+  declare context: React.ContextType<typeof AuthContext>;
     
   handleInputChange(event: React.ChangeEvent<HTMLInputElement>, validator?: () => void) {
     this.setState({ [event.target.id]: event.target.value }, () => {
@@ -206,39 +217,27 @@ class ResetPasswordNewPasswordStep extends React.Component {
     event.preventDefault();
   };
 
-  handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
+  async handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    this.setState({ isSubmitting: true });
-
-    console.log("Placeholder submit:", this.state);
-    new Promise((resolve) => setTimeout(resolve, 1000))
-      .then(() => {
-        this.setState({ isSubmitting: false, submitResponse: 200 });
-        this.props.nextStep();
-      });
-
-    // TODO: Put api base URI into environment variable
-    // Axios.postForm('http://localhost:8080/reset-password-code', { code: this.state.code })
-    //   .then(response => {
-    //     localStorage.setItem('token', response.data.token);
-
-    //     // Navigation logic in render()
-    //     this.setState({ isSubmitting: false, submitResponse: response.status });
-    //     this.props.nextStep();
-    //   })
-    //   .catch(error => {
-    //     console.error('Reset password code error:', error);
-    //     this.setState({ isSubmitting: false, submitResponse: error.response ? error.response.status : -1 });
-    //   });
+    const success = await this.context.resetPassword(this.state.code, this.state.newPassword);
+    this.setState({
+      attemptedSubmit: true,
+      submitSuccess: success
+    });
+    if (success) {
+      this.props.gotoStep("redirect");
+    }
   }
 
   render() {
+    const authContext = this.context;
+
     return (
       <div className="form-page">
         <div className="form-card">
           <h1 className="form-title">Reset Password</h1>
-          <form className="form" onSubmit={this.handleSubmit}>
+          <form className="form" onSubmit={this.handleSubmit} autoComplete="off">
             <TextField
               required
               id="password"
@@ -297,8 +296,8 @@ class ResetPasswordNewPasswordStep extends React.Component {
               }}
             />
             <div className="form-actions">
-              <input type="submit" value="Update Password" disabled={this.state.isSubmitting} />
-              {this.state.submitResponse && this.state.submitResponse !== 200 ? <h2 className="form-error-text">Password reset failed<br />Please check your details and try again</h2> : null}
+              <input type="submit" value="Update Password" disabled={authContext?.isLoading || this.state.emailError || this.state.passwordError || this.state.confirmPasswordError} />
+              {this.state.attemptedSubmit && !this.state.submitSuccess ? <h2 className="form-error-text">Password reset failed<br />Please check your details and try again</h2> : null}
             </div>
           </form>
         </div>
@@ -312,26 +311,22 @@ class ResetPassword extends React.Component {
   constructor(props: any) {
     super(props);
     this.state = {
-      stepIndex: 0,
+      stepIndex: "emailStep",
     }
 
-    this.nextStep = this.nextStep.bind(this);
-    this.prevStep = this.prevStep.bind(this);
+    this.gotoStep = this.gotoStep.bind(this);
 
-    this.steps = [
-      <ResetPasswordEmailStep nextStep={this.nextStep} />,
-      <ResetPasswordCodeStep nextStep={this.nextStep} />,
-      <ResetPasswordNewPasswordStep nextStep={this.nextStep} />,
-      <Navigate to="/login" />
-    ];
+    this.steps = {
+      "emailStep": <ResetPasswordEmailStep gotoStep={this.gotoStep} params={this.props.params} />,
+      "codeStep": <ResetPasswordCodeStep gotoStep={this.gotoStep} params={this.props.params} />,
+      "newPasswordStep": <ResetPasswordNewPasswordStep gotoStep={this.gotoStep} params={this.props.params} />,
+      "redirect": <Navigate to="/login" />
+    };
   }
 
-  nextStep() {
-    this.setState((prevState) => ({ stepIndex: Math.min(prevState.stepIndex + 1, this.steps.length - 1) }));
-  }
-
-  prevStep() {
-    this.setState((prevState) => ({ stepIndex: Math.max(prevState.stepIndex - 1, 0) }));
+  gotoStep(stepIndex: string) {
+    console.log(`Navigating to step ${stepIndex}`);
+    this.setState(() => ({ stepIndex: stepIndex }));
   }
 
   render() {
