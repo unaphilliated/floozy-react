@@ -1,9 +1,13 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
+import { AuthContext } from '../store/AuthContext';
 
 class Logout extends React.Component {
+  static contextType = AuthContext;
+  declare context: React.ContextType<typeof AuthContext>;
+
   render() {
-    localStorage.removeItem('token');
+    this.context.logout();
     return <Navigate to="/login" />;
   }
 }

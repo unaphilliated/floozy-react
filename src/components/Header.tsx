@@ -14,6 +14,7 @@ import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import { styled } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
+import { AuthContext } from '../store/AuthContext';
 
 const pages: { [index: string]: string } = {'Home': '/', 'Pricing': '/pricing', 'FAQ': '/faq'};
 const settings: { [index: string]: string } = {'Account': '/account', 'Dashboard': '/dashboard', 'Logout': '/logout'};
@@ -40,10 +41,11 @@ function Header() {
   const Img = styled('img')({});
 
   const navigate = useNavigate();
+  const authContext = React.useContext(AuthContext);
 
   return (
     <AppBar position="static">
-      <Container maxWidth="xl">
+      <Container maxWidth="xxl">
         <Toolbar disableGutters>
           <Img src={icon} sx={{ height: '2rem', display: { xs: 'none', md: 'flex' }, mr: 1 }}/>
           <Typography
@@ -127,11 +129,23 @@ function Header() {
             ))}
           </Box>
           <Box sx={{ flexGrow: 0 }}>
-            <Tooltip title="Open settings">
-              <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
-              </IconButton>
-            </Tooltip>
+            {
+              authContext.isAuthenticated ? (
+                <Tooltip title="Open settings">
+                  <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                    <Avatar />
+                  </IconButton>
+                </Tooltip>
+              ) : (
+                <Button 
+                  variant="outlined"
+                  onClick={() => navigate('/login')}
+                  sx={{ my: 2, color: 'white', display: 'block' }}
+                >
+                  Login
+                </Button>
+              )
+            }
             <Menu
               sx={{ mt: '45px' }}
               id="menu-appbar"
