@@ -11,7 +11,6 @@ import Logout from "./pages/Logout";
 import ResetPasswordWrapper from "./components/ResetPasswordWrapper";
 import Account from "./pages/Account";
 import Dashboard from "./pages/Dashboard";
-import './App.css';
 
 const App = () => {
   return (
