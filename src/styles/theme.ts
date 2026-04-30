@@ -22,7 +22,7 @@ theme = createTheme(theme,
       styleOverrides: {
         root: {
           backgroundColor: theme.palette.primary.dark,
-          color: '#fff',
+          color: theme.palette.primary.contrastText,
         },
       },
     },
