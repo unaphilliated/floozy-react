@@ -3,16 +3,30 @@ import { createTheme } from '@mui/material/styles';
 // Configure MUI theme here. See README.md for links to documentation.
 // use global.scss for traditional styling.
 
-const theme = createTheme({
+let theme = createTheme({
+  cssVariables: true,
   palette: {
     primary: {
-      main: '#1976d2',
-      light: '#42a5f5',
-      dark: '#1565c0',
+      main: '#6d3b57',
+      light: '#997689',
+      dark: '#4c293d',
       contrastText: '#fff',
     },
-  },
+  }
+});
+
+theme = createTheme(theme, 
+{
   components: {
+    MuiCard: {
+      styleOverrides: {
+        root: {
+          backgroundColor: theme.palette.primary.dark,
+          color: '#fff',
+        },
+      },
+    },
+
     MuiOutlinedInput: {
       styleOverrides: {
         root: {

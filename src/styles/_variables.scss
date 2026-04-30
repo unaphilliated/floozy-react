@@ -3,6 +3,6 @@
 // Form section
 $form-max-width: 420px;
 $form-gap: 1.25rem;
-$button-color: #007bff;
-$primary-text-color: #fff;
-$error-color: #ff4d4f;
+$button-color: var(--mui-palette-primary-main);
+$primary-text-color: var(--mui-palette-primary-contrastText);
+$error-color: var(--mui-palette-error-main);
