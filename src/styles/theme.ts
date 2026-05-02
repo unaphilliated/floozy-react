@@ -12,6 +12,10 @@ let theme = createTheme({
       dark: '#4c293d',
       contrastText: '#fff',
     },
+    action: {
+      disabled: '#666',
+      disabledBackground: '#272024',
+    },
   }
 });
 
